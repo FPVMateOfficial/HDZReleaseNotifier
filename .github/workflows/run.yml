@@ -1,13 +1,13 @@
 name: HDZero-Goggle releases
 
-# on:
-#   schedule:
-#   # At minute 0 past every 2nd hour
-#     - cron:  '0 */2 * * *'
+on:
+  schedule:
+  # At minute 0 past every 2nd hour
+    - cron:  '0 */2 * * *'
 
 # Manually run action - for testing
-on:
-  workflow_dispatch:
+# on:
+#   workflow_dispatch:
 
 jobs:
 
