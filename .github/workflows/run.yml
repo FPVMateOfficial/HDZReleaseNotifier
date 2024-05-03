@@ -1,0 +1,42 @@
+name: HDZero-Goggle releases
+
+# on:
+#   schedule:
+#   # At minute 0 past every 2nd hour
+#     - cron:  '0 */2 * * *'
+
+# Manually run action - for testing
+on:
+  workflow_dispatch:
+
+jobs:
+
+  get-latest-version:
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: read
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api https://api.github.com/repos/hd-zero/hdzero-goggle/releases/latest | \
+          jq -r ".id" > latest.txt
+      - name: See if it's a new release
+        id: git-check
+        run: echo ::set-output name=modified::$([ -z "`git status --porcelain`" ] && echo "false" || echo "true")
+      - name: Commit latest release version
+        if: steps.git-check.outputs.modified == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api https://api.github.com/repos/hd-zero/hdzero-goggle/releases > releases.json
+          git config --global user.name 'Automator'
+          git config --global user.email 'ImNotSafeLLC@users.noreply.github.com'
+          git add latest.txt releases.json
+          git commit -am "New release version"
+          git push
